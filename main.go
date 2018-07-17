@@ -1,0 +1,54 @@
+package main
+
+import (
+	"log"
+	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
+
+	"github.com/joho/godotenv"
+)
+
+var (
+	id string
+)
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+
+	// TODO: different worker ID if using docker?
+	id = strconv.Itoa(os.Getpid())
+}
+
+func main() {
+	log.Printf("worker %s up\n", id)
+
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		panic("missing REDIS_ADDR")
+	}
+
+	worker, err := NewWorker(redisAddr)
+	if err != nil {
+		panic(err)
+	}
+	errChan := worker.Run()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case err = <-errChan:
+		if err != nil {
+			panic(err)
+		}
+	case <-sigChan:
+		break
+	}
+
+	log.Printf("worker %s down\n", id)
+}
