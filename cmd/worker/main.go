@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/dabbotorg/worker"
 	"github.com/joho/godotenv"
 )
 
@@ -32,7 +33,7 @@ func main() {
 		panic("missing REDIS_ADDR")
 	}
 
-	worker, err := NewWorker(redisAddr)
+	worker, err := worker.NewWorker(redisAddr)
 	if err != nil {
 		panic(err)
 	}
