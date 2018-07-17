@@ -15,8 +15,9 @@ const (
 
 // Worker will pull and parse data from Redis
 type Worker struct {
-	Messages chan wumpus.Message
-	client   *redis.Client
+	Messages      <-chan wumpus.Message
+	messageSender chan<- wumpus.Message
+	client        *redis.Client
 }
 
 // NewWorker creates a new worker at the given redis address
@@ -30,10 +31,19 @@ func NewWorker(redisAddr string) (*Worker, error) {
 		return nil, err
 	}
 
+	messages := make(chan wumpus.Message, 16)
 	return &Worker{
-		Messages: make(chan wumpus.Message, 16),
-		client:   client,
+		Messages:      messages,
+		messageSender: messages,
+		client:        client,
 	}, nil
+}
+
+// Close closes the worker
+func (worker *Worker) Close() {
+	close(worker.messageSender)
+
+	worker.client.Close()
 }
 
 // Run runs the worker
@@ -77,7 +87,7 @@ func (worker *Worker) messageReceived(ev *wumpus.Event) error {
 	if err != nil {
 		return err
 	}
-	worker.Messages <- m
+	worker.messageSender <- m
 
 	return nil
 }

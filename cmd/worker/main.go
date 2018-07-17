@@ -37,6 +37,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer worker.Close()
+
 	errChan := worker.Run()
 	msgChan := worker.Messages
 
