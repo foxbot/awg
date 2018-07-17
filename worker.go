@@ -15,7 +15,8 @@ const (
 
 // Worker will pull and parse data from Redis
 type Worker struct {
-	client *redis.Client
+	Messages chan wumpus.Message
+	client   *redis.Client
 }
 
 // NewWorker creates a new worker at the given redis address
@@ -30,7 +31,8 @@ func NewWorker(redisAddr string) (*Worker, error) {
 	}
 
 	return &Worker{
-		client: client,
+		Messages: make(chan wumpus.Message, 16),
+		client:   client,
 	}, nil
 }
 
@@ -49,12 +51,33 @@ func (worker *Worker) run(errChan chan error) {
 		}
 
 		b := []byte(result[1])
-		var ev wumpus.Event
+		ev := new(wumpus.Event)
 
 		err = json.Unmarshal(b, &ev)
 		if err != nil {
 			errChan <- err
 			return
 		}
+
+		switch ev.Type {
+		case "MESSAGE_RECEIVE":
+			err = worker.messageReceived(ev)
+		}
+
+		if err != nil {
+			errChan <- err
+			return
+		}
 	}
+}
+
+func (worker *Worker) messageReceived(ev *wumpus.Event) error {
+	var m wumpus.Message
+	err := json.Unmarshal(ev.Data, &m)
+	if err != nil {
+		return err
+	}
+	worker.Messages <- m
+
+	return nil
 }

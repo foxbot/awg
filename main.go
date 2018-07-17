@@ -37,17 +37,23 @@ func main() {
 		panic(err)
 	}
 	errChan := worker.Run()
+	msgChan := worker.Messages
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	select {
-	case err = <-errChan:
-		if err != nil {
-			panic(err)
+loop:
+	for {
+		select {
+		case <-msgChan:
+			break
+		case err = <-errChan:
+			if err != nil {
+				panic(err)
+			}
+		case <-sigChan:
+			break loop
 		}
-	case <-sigChan:
-		break
 	}
 
 	log.Printf("worker %s down\n", id)
