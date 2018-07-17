@@ -37,12 +37,12 @@ func NewWorker(redisAddr string) (*Worker, error) {
 }
 
 // Run runs the worker
-func (worker *Worker) Run() chan error {
+func (worker *Worker) Run() <-chan error {
 	errChan := make(chan error)
 	go worker.run(errChan)
 	return errChan
 }
-func (worker *Worker) run(errChan chan error) {
+func (worker *Worker) run(errChan chan<- error) {
 	for {
 		result, err := worker.client.BLPop(time.Duration(0), KeyExchange).Result()
 		if err != nil {
