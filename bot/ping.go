@@ -13,5 +13,5 @@ func init() {
 }
 
 func ping(ctx *commands.Context) commands.Result {
-	return commands.Text("pong!")
+	return commands.Textf("pong! from worker %s", ctx.Worker.ID)
 }

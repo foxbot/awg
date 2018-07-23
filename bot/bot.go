@@ -1,6 +1,8 @@
 package bot
 
 import (
+	"log"
+
 	"github.com/foxbot/awg"
 	"github.com/foxbot/awg/commands"
 	"github.com/foxbot/awg/wumpus"
@@ -16,6 +18,7 @@ type Bot struct {
 
 // Command will ask the bot to handle a command from a raw message
 func (b *Bot) Command(msg wumpus.Message) error {
+	log.Println("trying to run content=", msg.Content)
 	// TODO: tokenizer/parsing
 	ctx := &commands.Context{
 		Message: msg,

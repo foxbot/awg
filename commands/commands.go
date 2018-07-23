@@ -31,7 +31,8 @@ func (c *Commands) Invoke(ctx *Context) error {
 	if !strings.HasPrefix(ctx.Message.Content, "~>>") {
 		return nil
 	}
-	name := ctx.Message.Content[len(Prefix)-1:] // TODO: tokenize/parse
+	name := ctx.Message.Content[len(Prefix):] // TODO: tokenize/parse
+	println("name=", name)
 
 	var command *Command
 	for _, cmd := range c.commands {

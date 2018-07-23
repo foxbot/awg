@@ -21,13 +21,14 @@ type IWorker interface {
 
 // Worker will pull and parse data from Redis
 type Worker struct {
+	ID       string
 	client   *redis.Client
 	discord  *wumpus.Discord
 	messages chan wumpus.Message
 }
 
 // NewWorker creates a new worker at the given redis address
-func NewWorker(redisAddr, discordAddr string) (*Worker, error) {
+func NewWorker(id, redisAddr, discordAddr string) (*Worker, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})
@@ -41,6 +42,7 @@ func NewWorker(redisAddr, discordAddr string) (*Worker, error) {
 
 	messages := make(chan wumpus.Message, 16)
 	return &Worker{
+		ID:       id,
 		client:   client,
 		discord:  discord,
 		messages: messages,
@@ -88,7 +90,7 @@ func (worker *Worker) run(errChan chan<- error) {
 		}
 
 		switch ev.Type {
-		case "MESSAGE_RECEIVE":
+		case "MESSAGE_CREATE":
 			err = worker.messageReceived(ev)
 		}
 

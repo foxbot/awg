@@ -48,6 +48,13 @@ func Text(msg string) TextResult {
 	}
 }
 
+func Textf(format string, args ...interface{}) TextResult {
+	msg := fmt.Sprintf(format, args...)
+	return TextResult{
+		Message: msg,
+	}
+}
+
 // Act writes a message to the channel
 func (r TextResult) Act(ctx *Context) error {
 	args := wumpus.CreateMessageArgs{

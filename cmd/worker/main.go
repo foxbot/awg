@@ -39,7 +39,7 @@ func main() {
 		panic("missing BLAZE_ADDR")
 	}
 
-	worker, err := awg.NewWorker(redisAddr, blazeAddr)
+	worker, err := awg.NewWorker(id, redisAddr, blazeAddr)
 	if err != nil {
 		panic(err)
 	}

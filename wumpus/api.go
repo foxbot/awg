@@ -32,7 +32,10 @@ func (discord *Discord) makeRequest(method, endpoint string, body interface{}) (
 		return nil, err
 	}
 	reader := bytes.NewReader(b)
-	req, err := http.NewRequest(method, endpoint, reader)
+
+	url := discord.baseURL + endpoint
+
+	req, err := http.NewRequest(method, url, reader)
 	if err != nil {
 		return nil, err
 	}

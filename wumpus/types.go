@@ -8,7 +8,7 @@ import (
 type Event struct {
 	Op   int             `json:"op"`
 	Data json.RawMessage `json:"d"`
-	Type string          `json:"string"`
+	Type string          `json:"t"`
 }
 
 // Snowflake is an ID type for Discord
