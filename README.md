@@ -1,3 +1,3 @@
-# worker
+# awg
 
-DAB Bot worker in Go
+adidis worker framework in Go
