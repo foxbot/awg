@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/dabbotorg/worker"
-	"github.com/dabbotorg/worker/bot"
+	"github.com/foxbot/awg"
+	"github.com/foxbot/awg/bot"
 	"github.com/joho/godotenv"
 )
 
@@ -34,7 +34,12 @@ func main() {
 		panic("missing REDIS_ADDR")
 	}
 
-	worker, err := worker.NewWorker(redisAddr)
+	blazeAddr := os.Getenv("BLAZE_ADDR")
+	if blazeAddr == "" {
+		panic("missing BLAZE_ADDR")
+	}
+
+	worker, err := awg.NewWorker(redisAddr, blazeAddr)
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +50,7 @@ func main() {
 	}
 
 	errChan := worker.Run()
-	msgChan := worker.Messages
+	msgChan := worker.Messages()
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)

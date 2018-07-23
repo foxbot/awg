@@ -1,10 +1,10 @@
-package worker
+package awg
 
 import (
 	"encoding/json"
 	"time"
 
-	"github.com/dabbotorg/worker/wumpus"
+	"github.com/foxbot/awg/wumpus"
 	"github.com/go-redis/redis"
 )
 
@@ -13,15 +13,21 @@ const (
 	KeyExchange = "exchange:events"
 )
 
+// IWorker defines an interface for a worker
+type IWorker interface {
+	Discord() *wumpus.Discord
+	Messages() <-chan wumpus.Message
+}
+
 // Worker will pull and parse data from Redis
 type Worker struct {
-	Messages      <-chan wumpus.Message
-	messageSender chan<- wumpus.Message
-	client        *redis.Client
+	client   *redis.Client
+	discord  *wumpus.Discord
+	messages chan wumpus.Message
 }
 
 // NewWorker creates a new worker at the given redis address
-func NewWorker(redisAddr string) (*Worker, error) {
+func NewWorker(redisAddr, discordAddr string) (*Worker, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})
@@ -31,19 +37,25 @@ func NewWorker(redisAddr string) (*Worker, error) {
 		return nil, err
 	}
 
+	discord := wumpus.NewDiscord(discordAddr)
+
 	messages := make(chan wumpus.Message, 16)
 	return &Worker{
-		Messages:      messages,
-		messageSender: messages,
-		client:        client,
+		client:   client,
+		discord:  discord,
+		messages: messages,
 	}, nil
 }
 
 // Close closes the worker
 func (worker *Worker) Close() {
-	close(worker.messageSender)
+	close(worker.messages)
 
 	worker.client.Close()
+}
+
+func (worker *Worker) Messages() <-chan wumpus.Message {
+	return worker.messages
 }
 
 // Run runs the worker
@@ -87,7 +99,7 @@ func (worker *Worker) messageReceived(ev *wumpus.Event) error {
 	if err != nil {
 		return err
 	}
-	worker.messageSender <- m
+	worker.messages <- m
 
 	return nil
 }

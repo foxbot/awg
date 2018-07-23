@@ -42,8 +42,8 @@ func (discord *Discord) makeRequest(method, endpoint string, body interface{}) (
 
 // CreateMessageArgs contains additional fields to create a message (TODO)
 type CreateMessageArgs struct {
-	Content string      `json:"content",omitempty`
-	Embed   interface{} `json:"embed",omitempty`
+	Content string      `json:"content,omitempty"`
+	Embed   interface{} `json:"embed,omitempty"`
 }
 
 func (d *Discord) CreateMessage(channelID string, args *CreateMessageArgs) (*Message, error) {

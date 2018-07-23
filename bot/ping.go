@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"github.com/dabbotorg/worker/commands"
+	"github.com/foxbot/awg/commands"
 )
 
 func init() {
