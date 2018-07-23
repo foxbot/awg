@@ -1,7 +1,10 @@
 package commands
 
 import (
+	"fmt"
 	"log"
+
+	"github.com/foxbot/awg/wumpus"
 )
 
 // Result is a contract for a command result
@@ -24,8 +27,13 @@ func Error(e error) ErrorResult {
 // Act logs the error and writes a message to the channel
 func (r ErrorResult) Act(ctx *Context) error {
 	log.Println("A command passed up an error", r.Error)
-	// TODO handle error
-	return nil
+
+	text := fmt.Sprintf("**Error:** %s", r.Error.Error())
+	args := wumpus.CreateMessageArgs{
+		Content: text,
+	}
+	_, err := ctx.Worker.Discord().CreateMessage(ctx.Message.ChannelID, args)
+	return err
 }
 
 // TextResult is a result for a command that writes text
@@ -42,6 +50,9 @@ func Text(msg string) TextResult {
 
 // Act writes a message to the channel
 func (r TextResult) Act(ctx *Context) error {
-	// TODO send message
-	return nil
+	args := wumpus.CreateMessageArgs{
+		Content: r.Message,
+	}
+	_, err := ctx.Worker.Discord().CreateMessage(ctx.Message.ChannelID, args)
+	return err
 }

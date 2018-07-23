@@ -46,7 +46,7 @@ type CreateMessageArgs struct {
 	Embed   interface{} `json:"embed,omitempty"`
 }
 
-func (d *Discord) CreateMessage(channelID string, args *CreateMessageArgs) (*Message, error) {
+func (d *Discord) CreateMessage(channelID Snowflake, args CreateMessageArgs) (*Message, error) {
 	url := fmt.Sprintf("channels/%s/messages", channelID)
 	req, err := d.makeRequest("POST", url, args)
 	if err != nil {

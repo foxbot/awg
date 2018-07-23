@@ -54,8 +54,14 @@ func (worker *Worker) Close() {
 	worker.client.Close()
 }
 
+// Messages returns a readonly chan of incoming messages
 func (worker *Worker) Messages() <-chan wumpus.Message {
 	return worker.messages
+}
+
+// Discord returns the worker's discord access
+func (worker *Worker) Discord() *wumpus.Discord {
+	return worker.discord
 }
 
 // Run runs the worker
