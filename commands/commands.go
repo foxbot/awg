@@ -1,5 +1,12 @@
 package commands
 
+import "strings"
+
+const (
+	// Prefix is the bot's prefix (TODO: dynamic)
+	Prefix = "~>>"
+)
+
 // Executor defines the delegate for a command
 type Executor func(ctx *Context) Result
 
@@ -21,7 +28,10 @@ func (c *Commands) Add(command Command) {
 
 // Invoke runs a command
 func (c *Commands) Invoke(ctx *Context) error {
-	name := ctx.Message.Content // TODO: tokenize/parse
+	if !strings.HasPrefix(ctx.Message.Content, "~>>") {
+		return nil
+	}
+	name := ctx.Message.Content[len(Prefix)-1:] // TODO: tokenize/parse
 
 	var command *Command
 	for _, cmd := range c.commands {
