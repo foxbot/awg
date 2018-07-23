@@ -1,3 +1,4 @@
+// Package bot provides an example bot with example commands using this worker
 package bot
 
 import (
