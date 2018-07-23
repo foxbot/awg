@@ -40,6 +40,10 @@ func main() {
 	}
 	defer worker.Close()
 
+	bot := bot.Bot{
+		Worker: worker,
+	}
+
 	errChan := worker.Run()
 	msgChan := worker.Messages
 
@@ -49,8 +53,12 @@ func main() {
 loop:
 	for {
 		select {
-		case <-msgChan:
-			break
+		case msg := <-msgChan:
+			err := bot.Command(msg)
+			if err != nil {
+				// TODO: should bot error trash the worker?
+				panic(err)
+			}
 		case err = <-errChan:
 			if err != nil {
 				panic(err)
