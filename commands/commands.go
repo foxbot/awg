@@ -1,7 +1,5 @@
 package commands
 
-import "strings"
-
 const (
 	// Prefix is the bot's prefix (TODO: dynamic)
 	Prefix = "~>>"
@@ -9,6 +7,9 @@ const (
 
 // Executor defines the delegate for a command
 type Executor func(ctx *Context) Result
+
+// PrefixFunc defines the delegate to check a prefix
+type PrefixFunc func(ctx *Context) (int, bool)
 
 // Command is a command that may be invoked
 type Command struct {
@@ -18,7 +19,15 @@ type Command struct {
 
 // Commands is a structure to manage commands
 type Commands struct {
-	commands []Command
+	commands   []Command
+	prefixFunc PrefixFunc
+}
+
+// NewCommands returns a Commands manager
+func NewCommands(prefixFunc PrefixFunc) *Commands {
+	return &Commands{
+		prefixFunc: prefixFunc,
+	}
 }
 
 // Add registers a command with the Commands manager
@@ -28,10 +37,11 @@ func (c *Commands) Add(command Command) {
 
 // Invoke runs a command
 func (c *Commands) Invoke(ctx *Context) error {
-	if !strings.HasPrefix(ctx.Message.Content, "~>>") {
+	offset, ok := c.prefixFunc(ctx)
+	if !ok {
 		return nil
 	}
-	name := ctx.Message.Content[len(Prefix):] // TODO: tokenize/parse
+	name := ctx.Message.Content[offset:] // TODO: tokenize/parse
 	println("name=", name)
 
 	var command *Command

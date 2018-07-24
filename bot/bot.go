@@ -3,6 +3,7 @@ package bot
 
 import (
 	"log"
+	"strings"
 
 	"github.com/foxbot/awg"
 	"github.com/foxbot/awg/commands"
@@ -10,7 +11,16 @@ import (
 )
 
 // Manager contains this bot's Commands
-var Manager commands.Commands
+var Manager = commands.NewCommands(checkPrefix)
+
+const prefix = "~>>"
+
+func checkPrefix(ctx *commands.Context) (int, bool) {
+	if strings.HasPrefix(ctx.Message.Content, prefix) {
+		return len(prefix), true
+	}
+	return 0, false
+}
 
 // Bot contains behavior to manage commands
 type Bot struct {
