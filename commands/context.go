@@ -7,6 +7,8 @@ import (
 
 // Context contains the context for a command
 type Context struct {
-	Message wumpus.Message
-	Worker  *awg.Worker
+	Message  wumpus.Message
+	Worker   *awg.Worker
+	Name     string
+	Argument string
 }

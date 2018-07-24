@@ -1,5 +1,7 @@
 package commands
 
+import "strings"
+
 const (
 	// Prefix is the bot's prefix (TODO: dynamic)
 	Prefix = "~>>"
@@ -41,15 +43,23 @@ func (c *Commands) Invoke(ctx *Context) error {
 	if !ok {
 		return nil
 	}
-	name := ctx.Message.Content[offset:] // TODO: tokenize/parse
+	content := ctx.Message.Content[offset:] // TODO: tokenize/parse
+	parts := strings.SplitN(content, " ", 2)
+	name := parts[0]
 	println("name=", name)
+	ctx.Name = name
+
+	if len(parts) > 1 {
+		ctx.Argument = parts[1]
+	}
 
 	var command *Command
+
 	for _, cmd := range c.commands {
 		for _, alias := range cmd.Aliases {
 			if name == alias {
 				command = &cmd
-				break
+				goto found
 			}
 		}
 	}
@@ -58,6 +68,7 @@ func (c *Commands) Invoke(ctx *Context) error {
 		// TODO: command not found?
 		return nil
 	}
+found:
 
 	result := command.Func(ctx)
 	err := result.Act(ctx)
